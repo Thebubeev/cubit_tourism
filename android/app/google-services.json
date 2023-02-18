@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "530811811614",
+    "project_id": "cubit-tourism",
+    "storage_bucket": "cubit-tourism.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530811811614:android:1946b7b94e87f73e8f7b0f",
+        "android_client_info": {
+          "package_name": "tourism.cubit.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530811811614-nahr27qd36q7jphc4b2j5080b4cuna9s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh7N1C4lO8vGBNNVEjK2Hftd23sh6_EKE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530811811614-nahr27qd36q7jphc4b2j5080b4cuna9s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
