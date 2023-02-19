@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:test_task/api/api.dart';
 import 'package:test_task/constants/constants.dart';
+import 'package:test_task/firebase_auth/firebase_auth.dart';
+import 'package:test_task/firebase_core/firebase_core.dart';
 import 'package:test_task/models/place.dart';
+import 'package:test_task/screens/authentication/wrapper_auth_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({Key? key}) : super(key: key);
@@ -11,7 +16,44 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
+  final _firebaseAuth = FirebaseAuth.instance;
   final controller = ScrollController();
+  String tripController = '';
+  final auth = Auth();
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  String name = '';
+
+  @override
+  void initState() {
+    init();
+    initFCM();
+    super.initState();
+  }
+
+  initFCM() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("message recieved");
+      print(event.notification!.body);
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print('Message clicked!');
+    });
+  }
+
+  init() async {
+    await users
+        .where('email', isEqualTo: _firebaseAuth.currentUser!.email)
+        .limit(1)
+        .get()
+        .then((snapshot) async {
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          name = snapshot.docs.single.get('name');
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,6 +62,20 @@ class _LandingScreenState extends State<LandingScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
+        leading: IconButton(
+            onPressed: () {},
+            icon: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.favorite_border,
+                  color: Colors.black,
+                ),
+              ),
+            )),
         centerTitle: true,
         title: const Text(
           'Студенческий туризм',
@@ -28,21 +84,17 @@ class _LandingScreenState extends State<LandingScreen> {
         ),
         actions: [
           IconButton(
-              onPressed: () {},
-              icon: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.black,
-                  ),
-                ),
-              )),
-          const SizedBox(
-            width: 10,
+            onPressed: () async {
+              await auth.signOut();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: ((context) => const WrapperAuthScreen())));
+            },
+            icon: const Icon(
+              Icons.exit_to_app_outlined,
+              color: Colors.black,
+            ),
           ),
         ],
       ),
@@ -55,10 +107,10 @@ class _LandingScreenState extends State<LandingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 5),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5),
                     child: Text(
-                      'Привет, Арсалан!',
+                      'Привет, $name',
                       style: Constants.defaultTextStyle,
                     ),
                   ),
@@ -70,6 +122,11 @@ class _LandingScreenState extends State<LandingScreen> {
                     ),
                   ),
                   TextFormField(
+                    onChanged: (val) {
+                      setState(() {
+                        tripController = val;
+                      });
+                    },
                     decoration: InputDecoration(
                         hintText: 'Поиск маршрута',
                         prefixIcon: const Icon(
@@ -98,10 +155,22 @@ class _LandingScreenState extends State<LandingScreen> {
                             height: 500,
                             child: ListView.builder(
                                 itemBuilder: ((context, index) {
-                                  return albomCard(
-                                      snapshot.data![index].imageUrl,
-                                      snapshot.data![index].name,
-                                      snapshot.data![index].city);
+                                  if (tripController.isEmpty) {
+                                    return albomCard(
+                                        snapshot.data![index].imageUrl,
+                                        snapshot.data![index].name,
+                                        snapshot.data![index].city);
+                                  }
+                                  if (snapshot.data![index].name
+                                      .toLowerCase()
+                                      .startsWith(
+                                          tripController.toLowerCase())) {
+                                    return albomCard(
+                                        snapshot.data![index].imageUrl,
+                                        snapshot.data![index].name,
+                                        snapshot.data![index].city);
+                                  }
+                                  return Container();
                                 }),
                                 itemCount: snapshot.data?.length),
                           );

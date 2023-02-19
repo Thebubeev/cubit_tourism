@@ -49,29 +49,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 : Container(),
             backgroundColor: isMin ? Colors.transparent : Colors.white,
             elevation: 0,
-            pinned: true,
-            title: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.search,
-                    color: Colors.black,
-                    size: 29,
-                  ),
-                  onPressed: () {},
-                ),
-                const SizedBox(
-                  width: 25,
-                ),
-                const Text(
-                  'Студенческий туризм',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w400),
-                )
-              ],
+            leading: IconButton(
+              icon: const Icon(
+                Icons.search,
+                color: Colors.black,
+                size: 29,
+              ),
+              onPressed: () {
+                
+              },
             ),
+            pinned: true,
+            title: const Text(
+              'Студенческий туризм',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w400),
+            ),
+            centerTitle: true,
             actions: [
               IconButton(
                   onPressed: () {},
